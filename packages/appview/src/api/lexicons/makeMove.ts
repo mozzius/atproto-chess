@@ -8,8 +8,8 @@ import {
 
 import { AppContext } from '#/context'
 import { Server } from '#/lexicons'
-import { getSessionAgent } from '#/lib/auth'
 import { moveToMoveView } from '#/lib/hydrate'
+import { getSessionAgent } from '#/session'
 
 export default function (server: Server, ctx: AppContext) {
   server.com.atpchess.makeMove({

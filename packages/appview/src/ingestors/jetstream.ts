@@ -1,4 +1,4 @@
-import { XyzStatusphereStatus } from '@atpchess/lexicon'
+import { ComAtpchessGame, ComAtpchessMove } from '@atpchess/lexicon'
 import pino from 'pino'
 import WebSocket from 'ws'
 
@@ -19,7 +19,7 @@ export async function createJetstreamIngester(db: Database) {
   // For throttling cursor writes
   let lastCursorWrite = 0
 
-  return new Jetstream<XyzStatusphereStatus.Record>({
+  return new Jetstream<ComAtpchessGame.Record | ComAtpchessMove.Record>({
     instanceUrl: env.JETSTREAM_INSTANCE,
     logger,
     cursor: cursor?.seq || undefined,
@@ -40,7 +40,8 @@ export async function createJetstreamIngester(db: Database) {
       // ignore account and identity events
       if (
         evt.kind !== 'commit' ||
-        evt.commit.collection !== 'xyz.statusphere.status'
+        (evt.commit.collection !== 'com.atpchess.game' &&
+          evt.commit.collection !== 'com.atpchess.move')
       )
         return
 
@@ -48,39 +49,69 @@ export async function createJetstreamIngester(db: Database) {
       const uri = `at://${evt.did}/${evt.commit.collection}/${evt.commit.rkey}`
 
       if (
-        (evt.commit.operation === 'create' ||
-          evt.commit.operation === 'update') &&
-        XyzStatusphereStatus.isRecord(evt.commit.record)
+        evt.commit.operation === 'create' ||
+        evt.commit.operation === 'update'
       ) {
-        const validatedRecord = XyzStatusphereStatus.validateRecord(
-          evt.commit.record,
-        )
-        if (!validatedRecord.success) return
-
-        await db
-          .insertInto('status')
-          .values({
-            uri,
-            authorDid: evt.did,
-            status: validatedRecord.value.status,
-            createdAt: validatedRecord.value.createdAt,
-            indexedAt: now.toISOString(),
-          })
-          .onConflict((oc) =>
-            oc.column('uri').doUpdateSet({
-              status: validatedRecord.value.status,
-              indexedAt: now.toISOString(),
-            }),
+        // Handle game records
+        if (
+          evt.commit.collection === 'com.atpchess.game' &&
+          ComAtpchessGame.isRecord(evt.commit.record)
+        ) {
+          const validatedRecord = ComAtpchessGame.validateRecord(
+            evt.commit.record,
           )
-          .execute()
+          if (!validatedRecord.success) return
+
+          await db
+            .insertInto('game')
+            .values({
+              uri,
+              challenger: validatedRecord.value.challenger,
+              challenged: validatedRecord.value.challenged,
+              startsFirst: validatedRecord.value.startsFirst,
+              status: 'pending',
+              timeControl: validatedRecord.value.timeControl,
+              rated: validatedRecord.value.rated || false,
+              createdAt: validatedRecord.value.createdAt,
+              indexedAt: now.toISOString(),
+              moveCount: 0,
+            })
+            .onConflict((oc) =>
+              oc.column('uri').doUpdateSet({
+                indexedAt: now.toISOString(),
+              }),
+            )
+            .execute()
+        }
+        // Handle move records
+        else if (
+          evt.commit.collection === 'com.atpchess.move' &&
+          ComAtpchessMove.isRecord(evt.commit.record)
+        ) {
+          const validatedRecord = ComAtpchessMove.validateRecord(
+            evt.commit.record,
+          )
+          if (!validatedRecord.success) return
+
+          // Would need to implement move handling similar to firehose
+          // For now, jetstream is not the primary ingestion method
+        }
       } else if (evt.commit.operation === 'delete') {
-        await db.deleteFrom('status').where('uri', '=', uri).execute()
+        if (evt.commit.collection === 'com.atpchess.game') {
+          await db
+            .updateTable('game')
+            .set({ status: 'abandoned', indexedAt: now.toISOString() })
+            .where('uri', '=', uri)
+            .execute()
+        } else if (evt.commit.collection === 'com.atpchess.move') {
+          await db.deleteFrom('move').where('uri', '=', uri).execute()
+        }
       }
     },
     onError: (err) => {
       logger.error({ err }, 'error during jetstream ingestion')
     },
-    wantedCollections: ['xyz.statusphere.status'],
+    wantedCollections: ['com.atpchess.game', 'com.atpchess.move'],
   })
 }
 

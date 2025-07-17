@@ -2,44 +2,193 @@
  * GENERATED CODE - DO NOT MODIFY
  */
 import {
-  LexiconDoc,
   Lexicons,
   ValidationError,
-  ValidationResult,
+  type LexiconDoc,
+  type ValidationResult,
 } from '@atproto/lexicon'
 
-import { $Typed, is$typed, maybe$typed } from './util.js'
+import { is$typed, maybe$typed, type $Typed } from './util.js'
 
 export const schemaDict = {
-  XyzStatusphereDefs: {
+  ComAtpchessCreateGame: {
     lexicon: 1,
-    id: 'xyz.statusphere.defs',
+    id: 'com.atpchess.createGame',
     defs: {
-      statusView: {
+      main: {
+        type: 'procedure',
+        description: 'Create a new chess game challenge',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['challenged', 'startsFirst'],
+            properties: {
+              challenged: {
+                type: 'string',
+                format: 'did',
+                description: 'DID of the player being challenged',
+              },
+              startsFirst: {
+                type: 'string',
+                format: 'did',
+                description:
+                  'DID of the player who will play white (must be either the challenger or challenged)',
+              },
+              timeControl: {
+                type: 'string',
+                description:
+                  "Time control format (e.g., '5+0', '10+5', 'correspondence')",
+              },
+              rated: {
+                type: 'boolean',
+                default: false,
+                description: 'Whether this game should be rated',
+              },
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['game'],
+            properties: {
+              game: {
+                type: 'ref',
+                ref: 'lex:com.atpchess.defs#gameView',
+                description: 'The newly created game',
+              },
+            },
+          },
+        },
+        errors: [
+          {
+            name: 'InvalidPlayer',
+            description:
+              "The challenged player DID is invalid or the startsFirst DID doesn't match either player",
+          },
+          {
+            name: 'ChallengeSelf',
+            description: 'Cannot challenge yourself to a game',
+          },
+        ],
+      },
+    },
+  },
+  ComAtpchessDefs: {
+    lexicon: 1,
+    id: 'com.atpchess.defs',
+    defs: {
+      gameView: {
         type: 'object',
-        required: ['uri', 'status', 'profile', 'createdAt'],
+        required: [
+          'uri',
+          'challenger',
+          'challenged',
+          'startsFirst',
+          'createdAt',
+          'status',
+        ],
         properties: {
           uri: {
             type: 'string',
             format: 'at-uri',
           },
-          status: {
+          challenger: {
+            type: 'ref',
+            ref: 'lex:com.atpchess.defs#playerView',
+          },
+          challenged: {
+            type: 'ref',
+            ref: 'lex:com.atpchess.defs#playerView',
+          },
+          startsFirst: {
             type: 'string',
-            minLength: 1,
-            maxGraphemes: 1,
-            maxLength: 32,
+            format: 'did',
           },
           createdAt: {
             type: 'string',
             format: 'datetime',
           },
-          profile: {
-            type: 'ref',
-            ref: 'lex:xyz.statusphere.defs#profileView',
+          status: {
+            type: 'string',
+            knownValues: ['pending', 'active', 'completed', 'abandoned'],
+            description: 'Current status of the game',
+          },
+          winner: {
+            type: 'string',
+            format: 'did',
+            description: 'DID of the winning player (if game is completed)',
+          },
+          result: {
+            type: 'string',
+            knownValues: ['white-wins', 'black-wins', 'draw', 'stalemate'],
+            description: 'Result of the game (if completed)',
+          },
+          timeControl: {
+            type: 'string',
+          },
+          rated: {
+            type: 'boolean',
+          },
+          moveCount: {
+            type: 'integer',
+            description: 'Total number of moves in the game',
+          },
+          lastMoveAt: {
+            type: 'string',
+            format: 'datetime',
+            description: 'Timestamp of the last move',
           },
         },
       },
-      profileView: {
+      moveView: {
+        type: 'object',
+        required: ['uri', 'game', 'move', 'player', 'createdAt', 'moveNumber'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          game: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          previousMove: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          move: {
+            type: 'string',
+          },
+          fen: {
+            type: 'string',
+          },
+          player: {
+            type: 'ref',
+            ref: 'lex:com.atpchess.defs#playerView',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          moveNumber: {
+            type: 'integer',
+            description: 'Move number in the game (1-based)',
+          },
+          timeRemaining: {
+            type: 'integer',
+          },
+          drawOffer: {
+            type: 'boolean',
+          },
+          resignation: {
+            type: 'boolean',
+          },
+        },
+      },
+      playerView: {
         type: 'object',
         required: ['did', 'handle'],
         properties: {
@@ -51,40 +200,119 @@ export const schemaDict = {
             type: 'string',
             format: 'handle',
           },
+          displayName: {
+            type: 'string',
+          },
+          avatar: {
+            type: 'string',
+            format: 'uri',
+          },
+          rating: {
+            type: 'integer',
+            description: 'Chess rating (e.g., ELO)',
+          },
         },
       },
     },
   },
-  XyzStatusphereGetStatuses: {
+  ComAtpchessGame: {
     lexicon: 1,
-    id: 'xyz.statusphere.getStatuses',
+    id: 'com.atpchess.game',
+    defs: {
+      main: {
+        type: 'record',
+        description: 'A chess game challenge between two players',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['challenger', 'challenged', 'startsFirst', 'createdAt'],
+          properties: {
+            challenger: {
+              type: 'string',
+              format: 'did',
+              description: 'DID of the player initiating the challenge',
+            },
+            challenged: {
+              type: 'string',
+              format: 'did',
+              description: 'DID of the player being challenged',
+            },
+            startsFirst: {
+              type: 'string',
+              format: 'did',
+              description:
+                'DID of the player who makes the first move (plays white)',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+              description: 'Timestamp when the game was created',
+            },
+            timeControl: {
+              type: 'string',
+              description:
+                "Optional time control format (e.g., '5+0', '10+5', 'correspondence')",
+            },
+            rated: {
+              type: 'boolean',
+              default: false,
+              description: 'Whether this game is rated',
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtpchessGetGames: {
+    lexicon: 1,
+    id: 'com.atpchess.getGames',
     defs: {
       main: {
         type: 'query',
-        description: 'Get a list of the most recent statuses on the network.',
+        description:
+          'Get a list of chess games, optionally filtered by player or status',
         parameters: {
           type: 'params',
           properties: {
+            player: {
+              type: 'string',
+              format: 'did',
+              description:
+                'Filter games by player DID (as either challenger or challenged)',
+            },
+            status: {
+              type: 'string',
+              knownValues: ['pending', 'active', 'completed', 'abandoned'],
+              description: 'Filter games by status',
+            },
             limit: {
               type: 'integer',
               minimum: 1,
               maximum: 100,
               default: 50,
             },
+            cursor: {
+              type: 'string',
+              description: 'Pagination cursor',
+            },
           },
         },
         output: {
           encoding: 'application/json',
           schema: {
             type: 'object',
-            required: ['statuses'],
+            required: ['games'],
             properties: {
-              statuses: {
+              games: {
                 type: 'array',
                 items: {
                   type: 'ref',
-                  ref: 'lex:xyz.statusphere.defs#statusView',
+                  ref: 'lex:com.atpchess.defs#gameView',
                 },
+              },
+              cursor: {
+                type: 'string',
+                description: 'Pagination cursor for next page',
               },
             },
           },
@@ -92,30 +320,57 @@ export const schemaDict = {
       },
     },
   },
-  XyzStatusphereGetUser: {
+  ComAtpchessGetMoves: {
     lexicon: 1,
-    id: 'xyz.statusphere.getUser',
+    id: 'com.atpchess.getMoves',
     defs: {
       main: {
         type: 'query',
-        description: "Get the current user's profile and status.",
+        description: 'Get the list of moves for a specific chess game',
         parameters: {
           type: 'params',
-          properties: {},
+          required: ['game'],
+          properties: {
+            game: {
+              type: 'string',
+              format: 'at-uri',
+              description: 'AT-URI of the game record',
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 100,
+              default: 50,
+              description: 'Maximum number of moves to return',
+            },
+            cursor: {
+              type: 'string',
+              description: 'Pagination cursor',
+            },
+          },
         },
         output: {
           encoding: 'application/json',
           schema: {
             type: 'object',
-            required: ['profile'],
+            required: ['moves'],
             properties: {
-              profile: {
+              game: {
                 type: 'ref',
-                ref: 'lex:app.bsky.actor.defs#profileView',
+                ref: 'lex:com.atpchess.defs#gameView',
+                description: 'The game these moves belong to',
               },
-              status: {
-                type: 'ref',
-                ref: 'lex:xyz.statusphere.defs#statusView',
+              moves: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:com.atpchess.defs#moveView',
+                },
+                description: 'List of moves in chronological order',
+              },
+              cursor: {
+                type: 'string',
+                description: 'Pagination cursor for next page',
               },
             },
           },
@@ -123,24 +378,55 @@ export const schemaDict = {
       },
     },
   },
-  XyzStatusphereSendStatus: {
+  ComAtpchessMakeMove: {
     lexicon: 1,
-    id: 'xyz.statusphere.sendStatus',
+    id: 'com.atpchess.makeMove',
     defs: {
       main: {
         type: 'procedure',
-        description: 'Send a status into the ATmosphere.',
+        description: 'Make a move in an active chess game',
         input: {
           encoding: 'application/json',
           schema: {
             type: 'object',
-            required: ['status'],
+            required: ['game', 'move'],
             properties: {
-              status: {
+              game: {
                 type: 'string',
-                minLength: 1,
-                maxGraphemes: 1,
-                maxLength: 32,
+                format: 'at-uri',
+                description: 'AT-URI of the game record',
+              },
+              previousMove: {
+                type: 'string',
+                format: 'at-uri',
+                description:
+                  'AT-URI of the previous move (required except for first move)',
+              },
+              move: {
+                type: 'string',
+                description:
+                  "Chess move in algebraic notation (e.g., 'e4', 'Nf3', 'O-O')",
+                minLength: 2,
+                maxLength: 10,
+              },
+              fen: {
+                type: 'string',
+                description:
+                  'FEN string representing the board position after this move',
+                maxLength: 100,
+              },
+              timeRemaining: {
+                type: 'integer',
+                description:
+                  'Time remaining in seconds for the player making this move',
+              },
+              drawOffer: {
+                type: 'boolean',
+                description: 'Whether to offer a draw with this move',
+              },
+              resignation: {
+                type: 'boolean',
+                description: 'Whether this move is a resignation',
               },
             },
           },
@@ -149,38 +435,100 @@ export const schemaDict = {
           encoding: 'application/json',
           schema: {
             type: 'object',
-            required: ['status'],
+            required: ['move'],
             properties: {
-              status: {
+              move: {
                 type: 'ref',
-                ref: 'lex:xyz.statusphere.defs#statusView',
+                ref: 'lex:com.atpchess.defs#moveView',
+                description: 'The newly created move',
               },
             },
           },
         },
+        errors: [
+          {
+            name: 'GameNotFound',
+            description: 'The specified game does not exist',
+          },
+          {
+            name: 'NotYourTurn',
+            description: 'It is not your turn to move',
+          },
+          {
+            name: 'InvalidMove',
+            description: 'The move is not legal in the current position',
+          },
+          {
+            name: 'GameNotActive',
+            description: 'The game is not in an active state',
+          },
+          {
+            name: 'PreviousMoveRequired',
+            description:
+              'Previous move reference is required for all moves except the first',
+          },
+          {
+            name: 'InvalidPreviousMove',
+            description:
+              'The previous move reference does not match the actual last move',
+          },
+        ],
       },
     },
   },
-  XyzStatusphereStatus: {
+  ComAtpchessMove: {
     lexicon: 1,
-    id: 'xyz.statusphere.status',
+    id: 'com.atpchess.move',
     defs: {
       main: {
         type: 'record',
+        description: 'A chess move in an ongoing game',
         key: 'tid',
         record: {
           type: 'object',
-          required: ['status', 'createdAt'],
+          required: ['game', 'move', 'createdAt'],
           properties: {
-            status: {
+            game: {
+              type: 'ref',
+              ref: 'lex:com.atproto.repo.strongRef',
+              description: 'Strong reference to the root game record',
+            },
+            previousMove: {
+              type: 'ref',
+              ref: 'lex:com.atproto.repo.strongRef',
+              description:
+                'Strong reference to the previous move (optional for first move)',
+            },
+            move: {
               type: 'string',
-              minLength: 1,
-              maxGraphemes: 1,
-              maxLength: 32,
+              description:
+                "Chess move in algebraic notation (e.g., 'e4', 'Nf3', 'O-O')",
+              minLength: 2,
+              maxLength: 10,
+            },
+            fen: {
+              type: 'string',
+              description:
+                'FEN string representing the board position after this move',
+              maxLength: 100,
             },
             createdAt: {
               type: 'string',
               format: 'datetime',
+              description: 'Timestamp when the move was made',
+            },
+            timeRemaining: {
+              type: 'integer',
+              description:
+                'Time remaining in seconds for the player who made this move',
+            },
+            drawOffer: {
+              type: 'boolean',
+              description: 'Whether this move includes a draw offer',
+            },
+            resignation: {
+              type: 'boolean',
+              description: 'Whether this move is a resignation',
             },
           },
         },
@@ -1241,7 +1589,6 @@ export const schemaDict = {
     },
   },
 } as const satisfies Record<string, LexiconDoc>
-
 export const schemas = Object.values(schemaDict) satisfies LexiconDoc[]
 export const lexicons: Lexicons = new Lexicons(schemas)
 
@@ -1274,11 +1621,13 @@ export function validate(
 }
 
 export const ids = {
-  XyzStatusphereDefs: 'xyz.statusphere.defs',
-  XyzStatusphereGetStatuses: 'xyz.statusphere.getStatuses',
-  XyzStatusphereGetUser: 'xyz.statusphere.getUser',
-  XyzStatusphereSendStatus: 'xyz.statusphere.sendStatus',
-  XyzStatusphereStatus: 'xyz.statusphere.status',
+  ComAtpchessCreateGame: 'com.atpchess.createGame',
+  ComAtpchessDefs: 'com.atpchess.defs',
+  ComAtpchessGame: 'com.atpchess.game',
+  ComAtpchessGetGames: 'com.atpchess.getGames',
+  ComAtpchessGetMoves: 'com.atpchess.getMoves',
+  ComAtpchessMakeMove: 'com.atpchess.makeMove',
+  ComAtpchessMove: 'com.atpchess.move',
   ComAtprotoLabelDefs: 'com.atproto.label.defs',
   ComAtprotoRepoApplyWrites: 'com.atproto.repo.applyWrites',
   ComAtprotoRepoCreateRecord: 'com.atproto.repo.createRecord',

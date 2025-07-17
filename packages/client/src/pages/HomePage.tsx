@@ -1,19 +1,18 @@
+import { useState } from 'react'
+
+import CreateGameForm from '#/components/CreateGameForm'
+import GamesList from '#/components/GamesList'
 import Header from '#/components/Header'
-import StatusForm, { STATUS_OPTIONS } from '#/components/StatusForm'
-import StatusList from '#/components/StatusList'
 import { useAuth } from '#/hooks/useAuth'
 
 const HomePage = () => {
   const { user, loading, error } = useAuth()
-
-  // Get a random emoji from the STATUS_OPTIONS array
-  const randomEmoji =
-    STATUS_OPTIONS[Math.floor(Math.random() * STATUS_OPTIONS.length)]
+  const [activeTab, setActiveTab] = useState<'all' | 'my' | 'active'>('all')
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[80vh]">
-        <div className="text-9xl animate-pulse">{randomEmoji}</div>
+        <div className="text-6xl animate-pulse">♟️</div>
       </div>
     )
   }
@@ -41,13 +40,54 @@ const HomePage = () => {
     <div className="flex flex-col gap-8 pb-12">
       <Header />
 
-      {user && <StatusForm />}
+      {user && <CreateGameForm />}
 
       <div>
-        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-          Recent Statuses
-        </h2>
-        <StatusList />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+            Chess Games
+          </h2>
+
+          {user && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveTab('all')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'all'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                All Games
+              </button>
+              <button
+                onClick={() => setActiveTab('my')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'my'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                My Games
+              </button>
+              <button
+                onClick={() => setActiveTab('active')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'active'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                Active Games
+              </button>
+            </div>
+          )}
+        </div>
+
+        <GamesList
+          filterPlayer={activeTab === 'my' && user ? user.did : undefined}
+          filterStatus={activeTab === 'active' ? 'active' : undefined}
+        />
       </div>
     </div>
   )

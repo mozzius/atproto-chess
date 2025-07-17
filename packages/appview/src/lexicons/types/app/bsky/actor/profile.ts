@@ -1,11 +1,15 @@
 /**
  * GENERATED CODE - DO NOT MODIFY
  */
-import { BlobRef, ValidationResult } from '@atproto/lexicon'
+import { BlobRef, type ValidationResult } from '@atproto/lexicon'
 import { CID } from 'multiformats/cid'
 
 import { validate as _validate } from '../../../../lexicons'
-import { is$typed as _is$typed, $Typed, OmitKey } from '../../../../util'
+import {
+  is$typed as _is$typed,
+  type $Typed,
+  type OmitKey,
+} from '../../../../util'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs.js'
 import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 

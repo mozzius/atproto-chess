@@ -98,11 +98,14 @@ migrations['004'] = {
       .addColumn('indexedAt', 'varchar', (col) => col.notNull())
       .addColumn('lastMoveAt', 'varchar')
       .addColumn('moveCount', 'integer', (col) => col.notNull().defaultTo(0))
-      .addUniqueIndex('game_challenger_challenged_created', [
-        'challenger',
-        'challenged',
-        'createdAt',
-      ])
+      .execute()
+
+    // Add indexes separately
+    await db.schema
+      .createIndex('game_challenger_challenged_created')
+      .on('game')
+      .columns(['challenger', 'challenged', 'createdAt'])
+      .unique()
       .execute()
 
     // Create move table
@@ -124,9 +127,25 @@ migrations['004'] = {
       )
       .addColumn('createdAt', 'varchar', (col) => col.notNull())
       .addColumn('indexedAt', 'varchar', (col) => col.notNull())
-      .addIndex('move_game_idx', ['gameUri'])
-      .addIndex('move_player_idx', ['playerDid'])
-      .addIndex('move_game_number_idx', ['gameUri', 'moveNumber'])
+      .execute()
+
+    // Add indexes separately
+    await db.schema
+      .createIndex('move_game_idx')
+      .on('move')
+      .column('gameUri')
+      .execute()
+
+    await db.schema
+      .createIndex('move_player_idx')
+      .on('move')
+      .column('playerDid')
+      .execute()
+
+    await db.schema
+      .createIndex('move_game_number_idx')
+      .on('move')
+      .columns(['gameUri', 'moveNumber'])
       .execute()
 
     // Add foreign key-like indexes

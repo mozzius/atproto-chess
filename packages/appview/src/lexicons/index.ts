@@ -2,14 +2,19 @@
  * GENERATED CODE - DO NOT MODIFY
  */
 import {
-  AuthVerifier,
   createServer as createXrpcServer,
-  StreamAuthVerifier,
-  Options as XrpcOptions,
   Server as XrpcServer,
+  type Auth,
+  type MethodConfigOrHandler,
+  type StreamConfigOrHandler,
+  type Options as XrpcOptions,
 } from '@atproto/xrpc-server'
 
 import { schemas } from './lexicons.js'
+import * as ComAtpchessCreateGame from './types/com/atpchess/createGame.js'
+import * as ComAtpchessGetGames from './types/com/atpchess/getGames.js'
+import * as ComAtpchessGetMoves from './types/com/atpchess/getMoves.js'
+import * as ComAtpchessMakeMove from './types/com/atpchess/makeMove.js'
 import * as ComAtprotoRepoApplyWrites from './types/com/atproto/repo/applyWrites.js'
 import * as ComAtprotoRepoCreateRecord from './types/com/atproto/repo/createRecord.js'
 import * as ComAtprotoRepoDeleteRecord from './types/com/atproto/repo/deleteRecord.js'
@@ -20,9 +25,6 @@ import * as ComAtprotoRepoListMissingBlobs from './types/com/atproto/repo/listMi
 import * as ComAtprotoRepoListRecords from './types/com/atproto/repo/listRecords.js'
 import * as ComAtprotoRepoPutRecord from './types/com/atproto/repo/putRecord.js'
 import * as ComAtprotoRepoUploadBlob from './types/com/atproto/repo/uploadBlob.js'
-import * as XyzStatusphereGetStatuses from './types/xyz/statusphere/getStatuses.js'
-import * as XyzStatusphereGetUser from './types/xyz/statusphere/getUser.js'
-import * as XyzStatusphereSendStatus from './types/xyz/statusphere/sendStatus.js'
 
 export function createServer(options?: XrpcOptions): Server {
   return new Server(options)
@@ -30,76 +32,81 @@ export function createServer(options?: XrpcOptions): Server {
 
 export class Server {
   xrpc: XrpcServer
-  xyz: XyzNS
   com: ComNS
   app: AppNS
 
   constructor(options?: XrpcOptions) {
     this.xrpc = createXrpcServer(schemas, options)
-    this.xyz = new XyzNS(this)
     this.com = new ComNS(this)
     this.app = new AppNS(this)
   }
 }
 
-export class XyzNS {
-  _server: Server
-  statusphere: XyzStatusphereNS
-
-  constructor(server: Server) {
-    this._server = server
-    this.statusphere = new XyzStatusphereNS(server)
-  }
-}
-
-export class XyzStatusphereNS {
-  _server: Server
-
-  constructor(server: Server) {
-    this._server = server
-  }
-
-  getStatuses<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      XyzStatusphereGetStatuses.Handler<ExtractAuth<AV>>,
-      XyzStatusphereGetStatuses.HandlerReqCtx<ExtractAuth<AV>>
-    >,
-  ) {
-    const nsid = 'xyz.statusphere.getStatuses' // @ts-ignore
-    return this._server.xrpc.method(nsid, cfg)
-  }
-
-  getUser<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      XyzStatusphereGetUser.Handler<ExtractAuth<AV>>,
-      XyzStatusphereGetUser.HandlerReqCtx<ExtractAuth<AV>>
-    >,
-  ) {
-    const nsid = 'xyz.statusphere.getUser' // @ts-ignore
-    return this._server.xrpc.method(nsid, cfg)
-  }
-
-  sendStatus<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      XyzStatusphereSendStatus.Handler<ExtractAuth<AV>>,
-      XyzStatusphereSendStatus.HandlerReqCtx<ExtractAuth<AV>>
-    >,
-  ) {
-    const nsid = 'xyz.statusphere.sendStatus' // @ts-ignore
-    return this._server.xrpc.method(nsid, cfg)
-  }
-}
-
 export class ComNS {
   _server: Server
+  atpchess: ComAtpchessNS
   atproto: ComAtprotoNS
 
   constructor(server: Server) {
     this._server = server
+    this.atpchess = new ComAtpchessNS(server)
     this.atproto = new ComAtprotoNS(server)
+  }
+}
+
+export class ComAtpchessNS {
+  _server: Server
+
+  constructor(server: Server) {
+    this._server = server
+  }
+
+  createGame<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtpchessCreateGame.QueryParams,
+      ComAtpchessCreateGame.HandlerInput,
+      ComAtpchessCreateGame.HandlerOutput
+    >,
+  ) {
+    const nsid = 'com.atpchess.createGame' // @ts-ignore
+    return this._server.xrpc.method(nsid, cfg)
+  }
+
+  getGames<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtpchessGetGames.QueryParams,
+      ComAtpchessGetGames.HandlerInput,
+      ComAtpchessGetGames.HandlerOutput
+    >,
+  ) {
+    const nsid = 'com.atpchess.getGames' // @ts-ignore
+    return this._server.xrpc.method(nsid, cfg)
+  }
+
+  getMoves<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtpchessGetMoves.QueryParams,
+      ComAtpchessGetMoves.HandlerInput,
+      ComAtpchessGetMoves.HandlerOutput
+    >,
+  ) {
+    const nsid = 'com.atpchess.getMoves' // @ts-ignore
+    return this._server.xrpc.method(nsid, cfg)
+  }
+
+  makeMove<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtpchessMakeMove.QueryParams,
+      ComAtpchessMakeMove.HandlerInput,
+      ComAtpchessMakeMove.HandlerOutput
+    >,
+  ) {
+    const nsid = 'com.atpchess.makeMove' // @ts-ignore
+    return this._server.xrpc.method(nsid, cfg)
   }
 }
 
@@ -120,110 +127,120 @@ export class ComAtprotoRepoNS {
     this._server = server
   }
 
-  applyWrites<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoApplyWrites.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoApplyWrites.HandlerReqCtx<ExtractAuth<AV>>
+  applyWrites<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoApplyWrites.QueryParams,
+      ComAtprotoRepoApplyWrites.HandlerInput,
+      ComAtprotoRepoApplyWrites.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.applyWrites' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  createRecord<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoCreateRecord.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoCreateRecord.HandlerReqCtx<ExtractAuth<AV>>
+  createRecord<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoCreateRecord.QueryParams,
+      ComAtprotoRepoCreateRecord.HandlerInput,
+      ComAtprotoRepoCreateRecord.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.createRecord' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  deleteRecord<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoDeleteRecord.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoDeleteRecord.HandlerReqCtx<ExtractAuth<AV>>
+  deleteRecord<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoDeleteRecord.QueryParams,
+      ComAtprotoRepoDeleteRecord.HandlerInput,
+      ComAtprotoRepoDeleteRecord.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.deleteRecord' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  describeRepo<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoDescribeRepo.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoDescribeRepo.HandlerReqCtx<ExtractAuth<AV>>
+  describeRepo<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoDescribeRepo.QueryParams,
+      ComAtprotoRepoDescribeRepo.HandlerInput,
+      ComAtprotoRepoDescribeRepo.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.describeRepo' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  getRecord<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoGetRecord.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoGetRecord.HandlerReqCtx<ExtractAuth<AV>>
+  getRecord<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoGetRecord.QueryParams,
+      ComAtprotoRepoGetRecord.HandlerInput,
+      ComAtprotoRepoGetRecord.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.getRecord' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  importRepo<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoImportRepo.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoImportRepo.HandlerReqCtx<ExtractAuth<AV>>
+  importRepo<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoImportRepo.QueryParams,
+      ComAtprotoRepoImportRepo.HandlerInput,
+      ComAtprotoRepoImportRepo.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.importRepo' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  listMissingBlobs<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoListMissingBlobs.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoListMissingBlobs.HandlerReqCtx<ExtractAuth<AV>>
+  listMissingBlobs<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoListMissingBlobs.QueryParams,
+      ComAtprotoRepoListMissingBlobs.HandlerInput,
+      ComAtprotoRepoListMissingBlobs.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.listMissingBlobs' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  listRecords<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoListRecords.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoListRecords.HandlerReqCtx<ExtractAuth<AV>>
+  listRecords<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoListRecords.QueryParams,
+      ComAtprotoRepoListRecords.HandlerInput,
+      ComAtprotoRepoListRecords.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.listRecords' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  putRecord<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoPutRecord.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoPutRecord.HandlerReqCtx<ExtractAuth<AV>>
+  putRecord<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoPutRecord.QueryParams,
+      ComAtprotoRepoPutRecord.HandlerInput,
+      ComAtprotoRepoPutRecord.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.putRecord' // @ts-ignore
     return this._server.xrpc.method(nsid, cfg)
   }
 
-  uploadBlob<AV extends AuthVerifier>(
-    cfg: ConfigOf<
-      AV,
-      ComAtprotoRepoUploadBlob.Handler<ExtractAuth<AV>>,
-      ComAtprotoRepoUploadBlob.HandlerReqCtx<ExtractAuth<AV>>
+  uploadBlob<A extends Auth = void>(
+    cfg: MethodConfigOrHandler<
+      A,
+      ComAtprotoRepoUploadBlob.QueryParams,
+      ComAtprotoRepoUploadBlob.HandlerInput,
+      ComAtprotoRepoUploadBlob.HandlerOutput
     >,
   ) {
     const nsid = 'com.atproto.repo.uploadBlob' // @ts-ignore
@@ -258,29 +275,3 @@ export class AppBskyActorNS {
     this._server = server
   }
 }
-
-type SharedRateLimitOpts<T> = {
-  name: string
-  calcKey?: (ctx: T) => string | null
-  calcPoints?: (ctx: T) => number
-}
-type RouteRateLimitOpts<T> = {
-  durationMs: number
-  points: number
-  calcKey?: (ctx: T) => string | null
-  calcPoints?: (ctx: T) => number
-}
-type HandlerOpts = { blobLimit?: number }
-type HandlerRateLimitOpts<T> = SharedRateLimitOpts<T> | RouteRateLimitOpts<T>
-type ConfigOf<Auth, Handler, ReqCtx> =
-  | Handler
-  | {
-      auth?: Auth
-      opts?: HandlerOpts
-      rateLimit?: HandlerRateLimitOpts<ReqCtx> | HandlerRateLimitOpts<ReqCtx>[]
-      handler: Handler
-    }
-type ExtractAuth<AV extends AuthVerifier | StreamAuthVerifier> = Extract<
-  Awaited<ReturnType<AV>>,
-  { credentials: unknown }
->

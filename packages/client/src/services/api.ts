@@ -62,6 +62,39 @@ export const api = {
     return response.json()
   },
 
+  // Get current user
+  async getCurrentUser() {
+    const response = await fetch('/xrpc/com.atpchess.getCurrentUser', {
+      method: 'GET',
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to get current user')
+    }
+
+    return response.json()
+  },
+
+  // Resolve handle to DID
+  async resolveHandle(handle: string) {
+    const response = await fetch(
+      `/xrpc/com.atpchess.resolveHandle?${new URLSearchParams({ handle })}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to resolve handle')
+    }
+
+    return response.json() as Promise<{ did: string; handle: string }>
+  },
+
   // Get games
   getGames(params: ComAtpchessGetGames.QueryParams) {
     return agent.com.atpchess.getGames(params)

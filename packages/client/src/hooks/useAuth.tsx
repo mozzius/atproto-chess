@@ -1,12 +1,19 @@
 import { createContext, ReactNode, useContext, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { XyzStatusphereGetUser } from '@atpchess/lexicon'
+import { AppBskyActorDefs } from '@atpchess/lexicon'
 import { XRPCError } from '@atproto/xrpc'
 
 import api from '#/services/api'
 
+interface User {
+  did: string
+  handle: string
+  displayName?: string
+  avatar?: string
+}
+
 interface AuthContextType {
-  user: XyzStatusphereGetUser.OutputSchema | null
+  user: User | null
   loading: boolean
   error: string | null
   login: (handle: string) => Promise<{ redirectUrl: string }>
@@ -41,10 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const { data: userData } = await api.getCurrentUser({})
+        // Get the current user from our custom endpoint
+        const userData = await api.getCurrentUser()
 
         // Clean up URL if needed
-        if (window.location.search && userData) {
+        if (window.location.search) {
           window.history.replaceState(
             {},
             document.title,
@@ -73,7 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           )
         }
 
-        throw apiErr
+        // For now, assume any error means not authenticated
+        return null
       }
     },
     retry: false,
@@ -98,7 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Reset the user data in React Query cache
       queryClient.setQueryData(['currentUser'], null)
       // Invalidate any user-dependent queries
-      queryClient.invalidateQueries({ queryKey: ['statuses'] })
+      queryClient.invalidateQueries({ queryKey: ['games'] })
+      queryClient.invalidateQueries({ queryKey: ['moves'] })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Logout failed'
       setError(message)
