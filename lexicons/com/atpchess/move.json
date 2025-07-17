@@ -1,0 +1,55 @@
+{
+  "lexicon": 1,
+  "id": "com.atpchess.move",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A chess move in an ongoing game",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["game", "move", "createdAt"],
+        "properties": {
+          "game": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "Strong reference to the root game record"
+          },
+          "previousMove": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "Strong reference to the previous move (optional for first move)"
+          },
+          "move": {
+            "type": "string",
+            "description": "Chess move in algebraic notation (e.g., 'e4', 'Nf3', 'O-O')",
+            "minLength": 2,
+            "maxLength": 10
+          },
+          "fen": {
+            "type": "string",
+            "description": "FEN string representing the board position after this move",
+            "maxLength": 100
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when the move was made"
+          },
+          "timeRemaining": {
+            "type": "integer",
+            "description": "Time remaining in seconds for the player who made this move"
+          },
+          "drawOffer": {
+            "type": "boolean",
+            "description": "Whether this move includes a draw offer"
+          },
+          "resignation": {
+            "type": "boolean",
+            "description": "Whether this move is a resignation"
+          }
+        }
+      }
+    }
+  }
+}

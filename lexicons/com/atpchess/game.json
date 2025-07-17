@@ -1,0 +1,46 @@
+{
+  "lexicon": 1,
+  "id": "com.atpchess.game",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A chess game challenge between two players",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["challenger", "challenged", "startsFirst", "createdAt"],
+        "properties": {
+          "challenger": {
+            "type": "string",
+            "format": "did",
+            "description": "DID of the player initiating the challenge"
+          },
+          "challenged": {
+            "type": "string",
+            "format": "did",
+            "description": "DID of the player being challenged"
+          },
+          "startsFirst": {
+            "type": "string",
+            "format": "did",
+            "description": "DID of the player who makes the first move (plays white)"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when the game was created"
+          },
+          "timeControl": {
+            "type": "string",
+            "description": "Optional time control format (e.g., '5+0', '10+5', 'correspondence')"
+          },
+          "rated": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this game is rated"
+          }
+        }
+      }
+    }
+  }
+}

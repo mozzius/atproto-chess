@@ -1,0 +1,65 @@
+{
+  "name": "@atpchess/appview",
+  "version": "0.0.1",
+  "description": "ATProto Chess AppView backend",
+  "author": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "lexgen": "lex gen-server ./src/lexicons ../../lexicons/xyz/statusphere/* ../../lexicons/com/atproto/*/* ../../lexicons/app/bsky/*/* --yes && pnpm format",
+    "clean": "rimraf dist coverage",
+    "format": "prettier --write src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@atpchess/lexicon": "workspace:*",
+    "@atproto/api": "^0.15.26",
+    "@atproto/common": "^0.4.11",
+    "@atproto/identity": "^0.4.8",
+    "@atproto/lexicon": "^0.4.12",
+    "@atproto/oauth-client-node": "^0.3.3",
+    "@atproto/sync": "^0.1.29",
+    "@atproto/syntax": "^0.4.0",
+    "@atproto/xrpc-server": "^0.9.0",
+    "better-sqlite3": "^12.2.0",
+    "chess": "^1.2.2",
+    "compression": "^1.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "envalid": "^8.1.0",
+    "express": "^5.1.0",
+    "iron-session": "^8.0.4",
+    "kysely": "^0.28.2",
+    "multiformats": "^13.3.7",
+    "pino": "^9.7.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "^0.9.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.14",
+    "@types/ws": "^8.18.1",
+    "pino-pretty": "^13.0.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "tsup": {
+    "entry": [
+      "src",
+      "!src/**/__tests__/**",
+      "!src/**/*.test.*"
+    ],
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true
+  }
+}

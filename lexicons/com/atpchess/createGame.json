@@ -1,0 +1,62 @@
+{
+  "lexicon": 1,
+  "id": "com.atpchess.createGame",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Create a new chess game challenge",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["challenged", "startsFirst"],
+          "properties": {
+            "challenged": {
+              "type": "string",
+              "format": "did",
+              "description": "DID of the player being challenged"
+            },
+            "startsFirst": {
+              "type": "string",
+              "format": "did",
+              "description": "DID of the player who will play white (must be either the challenger or challenged)"
+            },
+            "timeControl": {
+              "type": "string",
+              "description": "Time control format (e.g., '5+0', '10+5', 'correspondence')"
+            },
+            "rated": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether this game should be rated"
+            }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["game"],
+          "properties": {
+            "game": {
+              "type": "ref",
+              "ref": "com.atpchess.defs#gameView",
+              "description": "The newly created game"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "name": "InvalidPlayer",
+          "description": "The challenged player DID is invalid or the startsFirst DID doesn't match either player"
+        },
+        {
+          "name": "ChallengeSelf",
+          "description": "Cannot challenge yourself to a game"
+        }
+      ]
+    }
+  }
+}

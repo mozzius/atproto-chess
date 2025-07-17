@@ -1,0 +1,52 @@
+{
+  "name": "@atpchess/lexicon",
+  "version": "0.0.1",
+  "description": "Generated API client for ATProto Chess lexicons",
+  "author": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "private": true,
+  "scripts": {
+    "build": "pnpm lexgen && tsup",
+    "dev": "tsup --watch",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
+    "lexgen": "lex gen-api ./src ../../lexicons/com/atpchess/* ../../lexicons/com/atproto/*/* ../../lexicons/app/bsky/*/* --yes && pnpm format",
+    "format": "prettier --write src"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.15.26",
+    "@atproto/lexicon": "^0.4.12",
+    "@atproto/syntax": "^0.4.0",
+    "@atproto/xrpc": "^0.7.1",
+    "multiformats": "^13.3.7"
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "^0.9.0",
+    "@types/node": "^24.0.14",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "dts": true,
+    "sourcemap": true,
+    "clean": true
+  }
+}

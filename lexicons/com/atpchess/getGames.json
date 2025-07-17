@@ -1,0 +1,55 @@
+{
+  "lexicon": 1,
+  "id": "com.atpchess.getGames",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Get a list of chess games, optionally filtered by player or status",
+      "parameters": {
+        "type": "params",
+        "properties": {
+          "player": {
+            "type": "string",
+            "format": "did",
+            "description": "Filter games by player DID (as either challenger or challenged)"
+          },
+          "status": {
+            "type": "string",
+            "knownValues": ["pending", "active", "completed", "abandoned"],
+            "description": "Filter games by status"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Pagination cursor"
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["games"],
+          "properties": {
+            "games": {
+              "type": "array",
+              "items": {
+                "type": "ref",
+                "ref": "com.atpchess.defs#gameView"
+              }
+            },
+            "cursor": {
+              "type": "string",
+              "description": "Pagination cursor for next page"
+            }
+          }
+        }
+      }
+    }
+  }
+}

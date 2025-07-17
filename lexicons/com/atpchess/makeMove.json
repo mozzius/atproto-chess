@@ -1,0 +1,92 @@
+{
+  "lexicon": 1,
+  "id": "com.atpchess.makeMove",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Make a move in an active chess game",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["game", "move"],
+          "properties": {
+            "game": {
+              "type": "string",
+              "format": "at-uri",
+              "description": "AT-URI of the game record"
+            },
+            "previousMove": {
+              "type": "string",
+              "format": "at-uri",
+              "description": "AT-URI of the previous move (required except for first move)"
+            },
+            "move": {
+              "type": "string",
+              "description": "Chess move in algebraic notation (e.g., 'e4', 'Nf3', 'O-O')",
+              "minLength": 2,
+              "maxLength": 10
+            },
+            "fen": {
+              "type": "string",
+              "description": "FEN string representing the board position after this move",
+              "maxLength": 100
+            },
+            "timeRemaining": {
+              "type": "integer",
+              "description": "Time remaining in seconds for the player making this move"
+            },
+            "drawOffer": {
+              "type": "boolean",
+              "description": "Whether to offer a draw with this move"
+            },
+            "resignation": {
+              "type": "boolean",
+              "description": "Whether this move is a resignation"
+            }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["move"],
+          "properties": {
+            "move": {
+              "type": "ref",
+              "ref": "com.atpchess.defs#moveView",
+              "description": "The newly created move"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "name": "GameNotFound",
+          "description": "The specified game does not exist"
+        },
+        {
+          "name": "NotYourTurn",
+          "description": "It is not your turn to move"
+        },
+        {
+          "name": "InvalidMove",
+          "description": "The move is not legal in the current position"
+        },
+        {
+          "name": "GameNotActive",
+          "description": "The game is not in an active state"
+        },
+        {
+          "name": "PreviousMoveRequired",
+          "description": "Previous move reference is required for all moves except the first"
+        },
+        {
+          "name": "InvalidPreviousMove",
+          "description": "The previous move reference does not match the actual last move"
+        }
+      ]
+    }
+  }
+}

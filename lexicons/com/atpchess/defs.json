@@ -1,0 +1,139 @@
+{
+  "lexicon": 1,
+  "id": "com.atpchess.defs",
+  "defs": {
+    "gameView": {
+      "type": "object",
+      "required": [
+        "uri",
+        "challenger",
+        "challenged",
+        "startsFirst",
+        "createdAt",
+        "status"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "challenger": {
+          "type": "ref",
+          "ref": "#playerView"
+        },
+        "challenged": {
+          "type": "ref",
+          "ref": "#playerView"
+        },
+        "startsFirst": {
+          "type": "string",
+          "format": "did"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "status": {
+          "type": "string",
+          "knownValues": ["pending", "active", "completed", "abandoned"],
+          "description": "Current status of the game"
+        },
+        "winner": {
+          "type": "string",
+          "format": "did",
+          "description": "DID of the winning player (if game is completed)"
+        },
+        "result": {
+          "type": "string",
+          "knownValues": ["white-wins", "black-wins", "draw", "stalemate"],
+          "description": "Result of the game (if completed)"
+        },
+        "timeControl": {
+          "type": "string"
+        },
+        "rated": {
+          "type": "boolean"
+        },
+        "moveCount": {
+          "type": "integer",
+          "description": "Total number of moves in the game"
+        },
+        "lastMoveAt": {
+          "type": "string",
+          "format": "datetime",
+          "description": "Timestamp of the last move"
+        }
+      }
+    },
+    "moveView": {
+      "type": "object",
+      "required": ["uri", "game", "move", "player", "createdAt", "moveNumber"],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "game": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "previousMove": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "move": {
+          "type": "string"
+        },
+        "fen": {
+          "type": "string"
+        },
+        "player": {
+          "type": "ref",
+          "ref": "#playerView"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "moveNumber": {
+          "type": "integer",
+          "description": "Move number in the game (1-based)"
+        },
+        "timeRemaining": {
+          "type": "integer"
+        },
+        "drawOffer": {
+          "type": "boolean"
+        },
+        "resignation": {
+          "type": "boolean"
+        }
+      }
+    },
+    "playerView": {
+      "type": "object",
+      "required": ["did", "handle"],
+      "properties": {
+        "did": {
+          "type": "string",
+          "format": "did"
+        },
+        "handle": {
+          "type": "string",
+          "format": "handle"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri"
+        },
+        "rating": {
+          "type": "integer",
+          "description": "Chess rating (e.g., ELO)"
+        }
+      }
+    }
+  }
+}
